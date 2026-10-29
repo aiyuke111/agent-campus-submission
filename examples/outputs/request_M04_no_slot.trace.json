@@ -1,5 +1,5 @@
 {
-  "trace_id": "T05c958f15f",
+  "trace_id": "T886bc87763",
   "policy": "mock-policy",
   "request": {
     "material_id": "M04",
@@ -104,7 +104,8 @@
         "pending": [
           "需人工调整发布日期或开放新时段"
         ],
-        "claim_violations": []
+        "claim_violations": [],
+        "normalized": []
       },
       "observation": {
         "status": "BLOCKED",

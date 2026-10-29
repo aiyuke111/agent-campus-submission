@@ -1,5 +1,5 @@
 {
-  "trace_id": "T05c958f15f",
+  "trace_id": "T886bc87763",
   "material_id": "M04",
   "review_status": "NO_SLOT",
   "status": "BLOCKED",
@@ -32,5 +32,6 @@
     "slot_checked": true,
     "draft_saved": false
   },
-  "claim_violations": []
+  "claim_violations": [],
+  "normalized": []
 }

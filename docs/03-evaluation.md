@@ -8,8 +8,8 @@
 
 ```
 $ pytest -q
-................................................................          [100%]
-64 passed
+..................................................................       [100%]
+66 passed
 ```
 
 完整测试输出保存在 `examples/test-report.txt`（`64 passed`），供评审直接查看。
@@ -22,7 +22,7 @@ $ pytest -q
 | `tests/test_paths.py` | 6 | 动作序列、两条路径、Trace 字段、无发布动作 |
 | `tests/test_limits.py` | 2 | 步数上限、工具调用上限 |
 | `tests/test_cli.py` | 7 | CLI 正常/批量、BOM、非法 JSON、文件缺失、空 material_id、未知素材 |
-| `tests/test_hardening.py` | 26 | 反例：虚报完成、跳过审核、草稿撞时段、真实 I/O 失败、非法输入、模型异常、真实模型适配器、抢占重试 |
+| `tests/test_hardening.py` | 28 | 反例：虚报完成、跳过审核、草稿撞时段、真实 I/O 失败、非法输入、模型异常、真实模型适配器、抢占重试、重复动作、review 归一化 |
 
 ## 验收点实测
 
@@ -51,6 +51,28 @@ $ pytest -q
 | 9 | 只支持单素材请求 | CLI 支持重复 `--request` 批量处理 | `test_cli_batch_runs_multiple_requests` |
 | 10 | 真实模型适配器未测试 | 注入 fake client 覆盖正常/坏 JSON/空响应/未知动作/网络异常 | `test_openai_policy_*`（5 条） |
 | 11 | 默认 Mock 是固定分支 | 保留 Mock 作为离线基线；CLI 接通 `--policy openai`，动作协议与决策循环不变；Mock 边界如实标注 | 见 `docs/02` 与 `docs/04` |
+
+## 真实模型运行记录（DeepSeek）
+
+评测环境提供了可用的 DeepSeek Key（不写入仓库），使用 `--policy openai` 实际跑通 3 条路径：
+
+| 路径 | 输入 | 结果 | 步数/工具 | Trace |
+|---|---|---|---|---|
+| 正常 | `request_M05_normal` | `NEEDS_CONFIRMATION`，20:00 草稿，`PASS` | 5 / 4 | `examples/traces/openai/openai_normal.trace.json` |
+| 冲突 | `request_M01_conflict` | `NEEDS_CONFIRMATION`，18:00 占用→模型保存 19:00，`PASS` | 5 / 4 | `examples/traces/openai/openai_conflict.trace.json` |
+| 风险 | `request_M03_risk` | `BLOCKED` / `RISK_BLOCKED`，未查询时段、未保存 | 3 / 2 | `examples/traces/openai/openai_risk.trace.json` |
+
+Trace 中每步的 `decision_basis` 为模型生成（如「18:00 已被占用，改存可用候选 19:00 草稿」），动作随工具观察结果变化，可复核模型驱动的决策循环。  
+模型返回过非标准 `review_status=PENDING_CONFIRMATION`，Agent 归一化为 `PASS` 并记录在 `normalized` 字段，避免污染状态机。
+
+复现命令（仓库不保存 Key）：
+
+```bash
+export OPENAI_API_KEY=<key>
+export OPENAI_BASE_URL=https://api.deepseek.com/v1
+export OPENAI_MODEL=deepseek-chat
+python scripts/run_openai_examples.py
+```
 
 ## 两条执行路径（Trace 对照）
 
@@ -89,14 +111,14 @@ get_material → check_rules → 命中 R01（版权 high）→ finish（RISK_BL
 
 ## 复测记录
 
-- `pytest -q` 连续运行 3 次，均为 `64 passed`；
+- `pytest -q` 连续运行 3 次，均为 `66 passed`；
 - 仓库复制到独立临时目录（不含 `.git`）后重新执行 `pytest` 与 `scripts/run_examples.py`，结果一致；
 - 示例不变量：`drafts.json` 2 条（M01 19:00、M05 20:00）、重复提交同 `draft_id`、无跨素材同时段、无发布状态；
 - 代码与测试中无绝对路径依赖。
 
 ## 未覆盖与限制
 
-- 真实大模型线上效果未验证（无 API Key；适配器已用 fake client 覆盖异常分支）；
+- 真实模型只验证了 DeepSeek `deepseek-chat` 一个模型，其他模型/温度下的决策稳定性未覆盖；
 - 工具失败覆盖两类：注入式 `save_fail`（示例场景）与真实 `OSError` 原子写失败（单元测试）；未接真实网络工具；
 - 文件锁 + 原子写只做了单机防护，未做多进程压力测试；
 - 规则引擎为示例级，未抽象通用 DSL；

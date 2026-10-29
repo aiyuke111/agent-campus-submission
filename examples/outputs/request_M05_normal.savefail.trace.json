@@ -1,5 +1,5 @@
 {
-  "trace_id": "T726b5f4e3b",
+  "trace_id": "Tc72751160d",
   "policy": "mock-policy",
   "request": {
     "material_id": "M05",
@@ -98,7 +98,8 @@
         "pending": [
           "检查存储权限后重试；本次未保存成功"
         ],
-        "claim_violations": []
+        "claim_violations": [],
+        "normalized": []
       },
       "observation": {
         "status": "SAVE_FAILED",

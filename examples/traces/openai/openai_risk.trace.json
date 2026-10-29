@@ -1,0 +1,78 @@
+{
+  "trace_id": "T9df55bfccc",
+  "policy": "openai-policy",
+  "request": {
+    "material_id": "M03",
+    "publish_date": "2026-11-05",
+    "publish_time": "19:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 10,
+    "max_tool_calls": 16
+  },
+  "tool_calls_used": 2,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "尚未读取素材，必须先获取素材内容",
+      "action": "get_material",
+      "args": {
+        "material_id": "M03"
+      },
+      "observation": {
+        "title": "品牌合作短片",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材已读取，下一步需进行规则检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M03"
+      },
+      "observation": {
+        "risks": [
+          {
+            "rule_id": "R01",
+            "severity": "high",
+            "reason": "版权未清理，不得进入排期",
+            "needs_confirmation": false
+          },
+          {
+            "rule_id": "R04",
+            "severity": "medium",
+            "reason": "品牌合作素材需品牌方确认文案与露出",
+            "needs_confirmation": true
+          }
+        ]
+      },
+      "next_action": "finish"
+    },
+    {
+      "step": 3,
+      "decision_basis": "规则检查发现 high 风险 R01，按约束必须直接结束为 BLOCKED/RISK_BLOCKED",
+      "action": "finish",
+      "args": {
+        "status": "BLOCKED",
+        "review_status": "RISK_BLOCKED",
+        "reason": "存在 high 风险：版权未清理，不得进入排期",
+        "pending": [
+          "版权清理",
+          "品牌方确认文案与露出"
+        ],
+        "claim_violations": [],
+        "normalized": []
+      },
+      "observation": {
+        "status": "BLOCKED",
+        "review_status": "RISK_BLOCKED"
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "BLOCKED"
+}

@@ -1,5 +1,5 @@
 {
-  "trace_id": "Tff9edde534",
+  "trace_id": "T73a32242e9",
   "policy": "mock-policy",
   "request": {
     "material_id": "M03",
@@ -63,7 +63,8 @@
         "pending": [
           "R01: 版权未清理，不得进入排期"
         ],
-        "claim_violations": []
+        "claim_violations": [],
+        "normalized": []
       },
       "observation": {
         "status": "BLOCKED",

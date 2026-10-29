@@ -1,0 +1,41 @@
+{
+  "trace_id": "T8da53051d7",
+  "material_id": "M05",
+  "review_status": "PASS",
+  "status": "NEEDS_CONFIRMATION",
+  "reason": "素材无高风险，规则检查通过，20:00 时段空闲且草稿已保存（DAB6DAD51），待人工确认",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "20:00",
+    "hard": true
+  },
+  "suggested_slot": {
+    "date": "2026-11-05",
+    "time": "20:00",
+    "alternative": false,
+    "hard_requirement_modified": false
+  },
+  "pending_items": [],
+  "draft": {
+    "saved": true,
+    "duplicate": false,
+    "draft_id": "DAB6DAD51",
+    "idempotency_key": "7549d8e6b4f0fc91"
+  },
+  "published": false,
+  "steps_used": 5,
+  "tool_calls_used": 4,
+  "limits": {
+    "max_steps": 10,
+    "max_tool_calls": 16
+  },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": true,
+    "draft_saved": true
+  },
+  "claim_violations": [],
+  "normalized": []
+}

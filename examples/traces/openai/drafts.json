@@ -1,0 +1,26 @@
+{
+  "7549d8e6b4f0fc91": {
+    "draft_id": "DAB6DAD51",
+    "idempotency_key": "7549d8e6b4f0fc91",
+    "material_id": "M05",
+    "date": "2026-11-05",
+    "time": "20:00",
+    "requested_time": "20:00",
+    "hard_requirement": true,
+    "status": "DRAFT_PENDING_CONFIRMATION",
+    "created_at": "2026-10-29T13:23:35",
+    "published": false
+  },
+  "6945809c08bfb0d2": {
+    "draft_id": "D63DFF76B",
+    "idempotency_key": "6945809c08bfb0d2",
+    "material_id": "M01",
+    "date": "2026-11-05",
+    "time": "19:00",
+    "requested_time": "18:00",
+    "hard_requirement": true,
+    "status": "DRAFT_PENDING_CONFIRMATION",
+    "created_at": "2026-10-29T13:23:41",
+    "published": false
+  }
+}

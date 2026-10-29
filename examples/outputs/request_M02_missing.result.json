@@ -1,5 +1,5 @@
 {
-  "trace_id": "Tb9424b451b",
+  "trace_id": "Tab5dc558b3",
   "material_id": "M02",
   "review_status": "NEEDS_INPUT",
   "status": "NEEDS_INPUT",
@@ -32,5 +32,6 @@
     "slot_checked": false,
     "draft_saved": false
   },
-  "claim_violations": []
+  "claim_violations": [],
+  "normalized": []
 }

@@ -1,0 +1,49 @@
+{
+  "trace_id": "Tdd07dfb2b0",
+  "material_id": "M01",
+  "review_status": "PASS",
+  "status": "NEEDS_CONFIRMATION",
+  "reason": "原定 18:00 已被占用，已保存 19:00 的替代草稿，需确认",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "18:00",
+    "hard": true
+  },
+  "suggested_slot": {
+    "date": "2026-11-05",
+    "time": "19:00",
+    "alternative": true,
+    "hard_requirement_modified": false
+  },
+  "pending_items": [
+    "确认是否接受 19:00 替代时段"
+  ],
+  "draft": {
+    "saved": true,
+    "duplicate": false,
+    "draft_id": "D63DFF76B",
+    "idempotency_key": "6945809c08bfb0d2"
+  },
+  "published": false,
+  "steps_used": 5,
+  "tool_calls_used": 4,
+  "limits": {
+    "max_steps": 10,
+    "max_tool_calls": 16
+  },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": true,
+    "draft_saved": true
+  },
+  "claim_violations": [],
+  "normalized": [
+    {
+      "field": "review_status",
+      "from": "PENDING_CONFIRMATION",
+      "to": "PASS"
+    }
+  ]
+}

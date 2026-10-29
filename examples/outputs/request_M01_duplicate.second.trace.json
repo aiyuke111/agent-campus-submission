@@ -1,5 +1,5 @@
 {
-  "trace_id": "T74a275c8dc",
+  "trace_id": "T7b35aec6eb",
   "policy": "mock-policy",
   "request": {
     "material_id": "M01",
@@ -90,7 +90,8 @@
           "替代时段 2026-11-05 19:00 需用户确认；原要求 18:00 未被修改",
           "草稿需人工确认后才可发布"
         ],
-        "claim_violations": []
+        "claim_violations": [],
+        "normalized": []
       },
       "observation": {
         "status": "NEEDS_CONFIRMATION",

@@ -1,8 +1,9 @@
 # examples
 
 - `inputs/`：7 个请求（正常、冲突、信息缺失、风险、无可用时段、重复提交、保存失败复用）。
-- `outputs/`：实际运行结果与 Trace。
-- `test-report.txt`：`pytest` 完整输出（64 passed）。
+- `outputs/`：Mock 策略的实际运行结果与 Trace。
+- `traces/openai/`：真实模型（DeepSeek `deepseek-chat`）运行结果与 Trace（normal / conflict / risk）。
+- `test-report.txt`：`pytest` 完整输出（66 passed）。
 
 | 场景 | 结果 | Trace |
 |---|---|---|

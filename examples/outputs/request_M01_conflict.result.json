@@ -1,5 +1,5 @@
 {
-  "trace_id": "Tf87560149b",
+  "trace_id": "Td0cf182b35",
   "material_id": "M01",
   "review_status": "PASS",
   "status": "NEEDS_CONFIRMATION",
@@ -39,5 +39,6 @@
     "slot_checked": true,
     "draft_saved": true
   },
-  "claim_violations": []
+  "claim_violations": [],
+  "normalized": []
 }

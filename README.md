@@ -79,10 +79,11 @@ src/
   schemas.py      请求校验、素材、风险、状态枚举
   cli.py          命令行入口（支持批量请求与真实模型策略）
   llm/            真实模型适配（OpenAI 兼容，可注入 client 测试）
-tests/            单元 + 集成 + 反例/加固测试（64 条）
+tests/            单元 + 集成 + 反例/加固测试（66 条）
 examples/
   inputs/         场景输入
-  outputs/        实际运行结果与 Trace
+  outputs/        Mock 策略的实际运行结果与 Trace
+  traces/openai/  真实模型（DeepSeek）的实际运行结果与 Trace
 data/             合成素材、规则、时段
 docs/             需求、方案、评估、AI 使用、复盘
 scripts/          示例批量生成脚本
@@ -134,11 +135,23 @@ scripts/          示例批量生成脚本
 | 保存失败 | `request_M05_normal` + `--inject save_fail` | `request_M05_normal.savefail.result.json` |
 | 步数上限 | `request_M01_conflict --max-steps 2` | `request_M01_conflict.limit.result.json` |
 
-## Mock 边界
+## 模型与 Mock 边界
 
 - 默认 `MockPolicy` 用于离线复现流程、状态与边界；它不代表真实模型的决策质量。
-- 真实模型入口已接通 CLI（`--policy openai`），适配层对网络异常、空响应、非 JSON、未知动作做了结构化处理，并用注入 client 做了单元测试。
-- 评测环境无 API Key，因此真实模型的线上效果未纳入本次运行记录。
+- 真实模型入口 `--policy openai` 已跑通：使用 DeepSeek `deepseek-chat` 实际执行了 3 条路径，Trace 在 `examples/traces/openai/`：
+  - `openai_normal`：5 步 / 4 次工具，20:00 草稿，`NEEDS_CONFIRMATION`
+  - `openai_conflict`：5 步 / 4 次工具，模型判断 18:00 被占后保存 19:00，`NEEDS_CONFIRMATION`
+  - `openai_risk`：3 步 / 2 次工具，命中版权高风险后阻断，`BLOCKED`
+- 复现真实模型记录（需要 Key，仓库不保存 Key）：
+
+```bash
+export OPENAI_API_KEY=<your-key>
+export OPENAI_BASE_URL=https://api.deepseek.com/v1
+export OPENAI_MODEL=deepseek-chat
+python scripts/run_openai_examples.py
+```
+
+- 真实模型输出经过 Agent 证据校验与 `review_status` 归一化（如模型返回 `PENDING_CONFIRMATION` 会被归一为 `PASS` 并记录在 `normalized`）。
 
 ## 已知限制
 

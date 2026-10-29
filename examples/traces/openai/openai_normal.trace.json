@@ -1,0 +1,104 @@
+{
+  "trace_id": "T8da53051d7",
+  "policy": "openai-policy",
+  "request": {
+    "material_id": "M05",
+    "publish_date": "2026-11-05",
+    "publish_time": "20:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 10,
+    "max_tool_calls": 16
+  },
+  "tool_calls_used": 4,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "尚未读取素材，必须先获取素材内容。",
+      "action": "get_material",
+      "args": {
+        "material_id": "M05"
+      },
+      "observation": {
+        "title": "咖啡店探店",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材已读取且无缺失字段，下一步需进行规则检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M05"
+      },
+      "observation": {
+        "risks": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 3,
+      "decision_basis": "素材已读取且规则检查通过、无高风险，下一步查询目标时段可用性",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-05",
+        "requested_time": "20:00"
+      },
+      "observation": {
+        "date": "2026-11-05",
+        "date_exists": true,
+        "requested_free": true,
+        "available": [
+          "19:00",
+          "20:00"
+        ],
+        "candidates": [
+          "20:00"
+        ],
+        "earlier_candidates": [
+          "19:00"
+        ]
+      },
+      "next_action": "save_draft"
+    },
+    {
+      "step": 4,
+      "decision_basis": "规则检查无高风险且时段20:00可用，按请求原值保存草稿",
+      "action": "save_draft",
+      "args": {
+        "date": "2026-11-05",
+        "time": "20:00",
+        "requested_time": "20:00",
+        "hard": true
+      },
+      "observation": {
+        "saved": true,
+        "draft_id": "DAB6DAD51",
+        "duplicate": false
+      },
+      "next_action": "finish"
+    },
+    {
+      "step": 5,
+      "decision_basis": "草稿已保存且无风险，仅剩确认环节",
+      "action": "finish",
+      "args": {
+        "status": "NEEDS_CONFIRMATION",
+        "review_status": "PASS",
+        "reason": "素材无高风险，规则检查通过，20:00 时段空闲且草稿已保存（DAB6DAD51），待人工确认",
+        "pending": [],
+        "claim_violations": [],
+        "normalized": []
+      },
+      "observation": {
+        "status": "NEEDS_CONFIRMATION",
+        "review_status": "PASS"
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "NEEDS_CONFIRMATION"
+}

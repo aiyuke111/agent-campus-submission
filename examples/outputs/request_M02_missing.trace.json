@@ -1,5 +1,5 @@
 {
-  "trace_id": "Tb9424b451b",
+  "trace_id": "Tab5dc558b3",
   "policy": "mock-policy",
   "request": {
     "material_id": "M02",
@@ -41,7 +41,8 @@
         "pending": [
           "补充必填字段: duration_s, category"
         ],
-        "claim_violations": []
+        "claim_violations": [],
+        "normalized": []
       },
       "observation": {
         "status": "NEEDS_INPUT",

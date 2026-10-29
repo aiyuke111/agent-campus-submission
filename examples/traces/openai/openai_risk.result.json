@@ -1,0 +1,54 @@
+{
+  "trace_id": "T9df55bfccc",
+  "material_id": "M03",
+  "review_status": "RISK_BLOCKED",
+  "status": "BLOCKED",
+  "reason": "存在 high 风险：版权未清理，不得进入排期",
+  "risk_reasons": [
+    "版权未清理，不得进入排期",
+    "品牌合作素材需品牌方确认文案与露出"
+  ],
+  "risks": [
+    {
+      "rule_id": "R01",
+      "severity": "high",
+      "reason": "版权未清理，不得进入排期",
+      "needs_confirmation": false
+    },
+    {
+      "rule_id": "R04",
+      "severity": "medium",
+      "reason": "品牌合作素材需品牌方确认文案与露出",
+      "needs_confirmation": true
+    }
+  ],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "19:00",
+    "hard": true
+  },
+  "suggested_slot": null,
+  "pending_items": [
+    "版权清理",
+    "品牌方确认文案与露出"
+  ],
+  "draft": {
+    "saved": false,
+    "draft_id": null,
+    "duplicate": false
+  },
+  "published": false,
+  "steps_used": 3,
+  "tool_calls_used": 2,
+  "limits": {
+    "max_steps": 10,
+    "max_tool_calls": 16
+  },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": false,
+    "draft_saved": false
+  },
+  "claim_violations": [],
+  "normalized": []
+}

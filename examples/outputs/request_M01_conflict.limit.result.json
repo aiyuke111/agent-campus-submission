@@ -1,5 +1,5 @@
 {
-  "trace_id": "Ta3dfe84822",
+  "trace_id": "T0b8d74b481",
   "material_id": "M01",
   "review_status": "INCOMPLETE",
   "status": "INCOMPLETE",
@@ -33,6 +33,7 @@
     "draft_saved": false
   },
   "claim_violations": [],
+  "normalized": [],
   "collected": {
     "material": {
       "material_id": "M01",

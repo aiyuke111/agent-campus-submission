@@ -93,9 +93,10 @@ sha256(material_id | date | time | requested_time | hard | rules_version)[:16]
 ## 模型接入
 
 - 默认 `MockPolicy`：离线、确定性，方便评审复现；
-- `--policy openai`：真实模型，动作协议一致；网络异常、空响应、非 JSON、未知动作统一抛 `PolicyError`，由 Agent 转结构化 `ERROR`；
-- 适配器支持注入 client，单元测试覆盖正常 JSON、坏 JSON、空响应、未知动作、网络异常；
-- 评测环境无 API Key，因此真实模型的线上效果不在本次运行记录内。
+- `--policy openai`：真实模型，动作协议一致；内置零依赖 OpenAI 兼容 HTTP 客户端（支持 DeepSeek），网络异常、空响应、非 JSON、未知动作统一抛 `PolicyError`，由 Agent 转结构化 `ERROR`；
+- 真实模型运行支持：状态里显式提供 `progress` 与 `allowed_actions`，避免模型重复已完成步骤；模型给出的建议时段由 Agent 按业务规则统一推导，模型只负责选择动作；
+- 真实模型实测：DeepSeek `deepseek-chat` 跑了 normal / conflict / risk 三条路径，Trace 见 `examples/traces/openai/`；模型返回的 `PENDING_CONFIRMATION` 会被归一化为 `PASS` 并记录，保证状态机一致；
+- 适配器支持注入 client，单元测试覆盖正常 JSON、坏 JSON、空响应、未知动作、网络异常。评测环境不保存 Key。
 
 ## 技术取舍
 

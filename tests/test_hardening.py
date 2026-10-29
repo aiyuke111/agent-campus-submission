@@ -221,6 +221,32 @@ def test_policy_retries_once_after_slot_taken():
     assert decision["args"]["status"] == "SAVE_FAILED"
 
 
+def test_finish_normalizes_unknown_review_status(store):
+    agent = build_agent(store)
+    req = load_request("request_M05_normal")
+    ctx = {"request": req, "material": {"missing_fields": []}, "risks": [],
+           "slot_info": {"available": ["20:00"]}, "proposed": {"date": req.publish_date,
+                                                               "time": "20:00", "alternative": False},
+           "draft_result": {"saved": True}, "save_error": None}
+    out = agent._validate_finish(ctx, {"status": "NEEDS_CONFIRMATION",
+                                       "review_status": "PENDING_CONFIRMATION",
+                                       "reason": "ok", "pending": []})
+    assert out["status"] == "NEEDS_CONFIRMATION"
+    assert out["review_status"] == "PASS"
+    assert out["normalized"][0]["from"] == "PENDING_CONFIRMATION"
+
+
+def test_repeated_identical_tool_call_is_rejected(store):
+    policy = ScriptedPolicy([
+        {"action": "get_material", "args": {"material_id": "M05"}, "decision_basis": "read"},
+        {"action": "check_rules", "args": {"material_id": "M05"}, "decision_basis": "rules"},
+        {"action": "check_rules", "args": {"material_id": "M05"}, "decision_basis": "rules again"},
+    ])
+    out = build_agent(store, policy=policy).run(load_request("request_M05_normal"))
+    assert out["result"]["status"] == "ERROR"
+    assert out["result"]["violations"][0]["code"] == "REPEATED_ACTION"
+
+
 # ---------- 输入校验 ----------
 @pytest.mark.parametrize("payload", [
     {"material_id": "M04", "publish_date": "2026-13-40", "publish_time": "18:00", "hard": True},

@@ -1,0 +1,109 @@
+{
+  "trace_id": "Tdd07dfb2b0",
+  "policy": "openai-policy",
+  "request": {
+    "material_id": "M01",
+    "publish_date": "2026-11-05",
+    "publish_time": "18:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 10,
+    "max_tool_calls": 16
+  },
+  "tool_calls_used": 4,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "尚未读取素材，必须先获取素材内容。",
+      "action": "get_material",
+      "args": {
+        "material_id": "M01"
+      },
+      "observation": {
+        "title": "夏日猫咪日常",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材已读取，下一步需进行规则检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M01"
+      },
+      "observation": {
+        "risks": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 3,
+      "decision_basis": "素材已读且规则检查无高风险，下一步查询目标时段可用性",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-05",
+        "requested_time": "18:00"
+      },
+      "observation": {
+        "date": "2026-11-05",
+        "date_exists": true,
+        "requested_free": false,
+        "available": [
+          "19:00"
+        ],
+        "candidates": [
+          "19:00"
+        ],
+        "earlier_candidates": []
+      },
+      "next_action": "save_draft"
+    },
+    {
+      "step": 4,
+      "decision_basis": "规则检查无高风险，18:00 被占用，改存可用候选 19:00 草稿",
+      "action": "save_draft",
+      "args": {
+        "date": "2026-11-05",
+        "time": "19:00",
+        "requested_time": "18:00",
+        "hard": true
+      },
+      "observation": {
+        "saved": true,
+        "draft_id": "D63DFF76B",
+        "duplicate": false
+      },
+      "next_action": "finish"
+    },
+    {
+      "step": 5,
+      "decision_basis": "草稿已保存且为替代时段，需用户确认",
+      "action": "finish",
+      "args": {
+        "status": "NEEDS_CONFIRMATION",
+        "review_status": "PASS",
+        "reason": "原定 18:00 已被占用，已保存 19:00 的替代草稿，需确认",
+        "pending": [
+          "确认是否接受 19:00 替代时段"
+        ],
+        "claim_violations": [],
+        "normalized": [
+          {
+            "field": "review_status",
+            "from": "PENDING_CONFIRMATION",
+            "to": "PASS"
+          }
+        ]
+      },
+      "observation": {
+        "status": "NEEDS_CONFIRMATION",
+        "review_status": "PASS"
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "NEEDS_CONFIRMATION"
+}

@@ -7,6 +7,7 @@
 - 只做草稿与确认，不包含任何发布动作。
 """
 
+import json
 import uuid
 from typing import Any, Dict, List, Tuple
 
@@ -90,6 +91,12 @@ class Agent:
             # 5) 前置条件守卫：不允许跳过审核/篡改参数
             try:
                 guards.check_preconditions(decision["action"], decision.get("args", {}), ctx, request)
+                signature = f'{decision["action"]}|{json.dumps(decision.get("args", {}), sort_keys=True, ensure_ascii=False)}'
+                counts = ctx.setdefault("action_counts", {})
+                if decision["action"] in (Action.GET_MATERIAL, Action.CHECK_RULES, Action.SAVE_DRAFT) \
+                        and counts.get(signature, 0) >= 1:
+                    raise RejectedAction("REPEATED_ACTION", "重复执行相同工具与参数，已中止以避免死循环")
+                counts[signature] = counts.get(signature, 0) + 1
             except RejectedAction as exc:
                 steps.append(self._step(len(steps) + 1, decision, {"rejected": exc.message}))
                 return self._wrap(self._error_result(request, ctx, steps, tool_calls, trace_id,
@@ -173,6 +180,21 @@ class Agent:
         if review == ReviewStatus.PASS and high:
             violations.append("命中高风险规则却声称审核通过")
 
+        # review_status 归一化：模型可能返回自定义值（如 PENDING_CONFIRMATION）
+        allowed_review = {ReviewStatus.PASS, ReviewStatus.NEEDS_INPUT, ReviewStatus.RISK_BLOCKED,
+                          ReviewStatus.NO_SLOT, ReviewStatus.SAVE_FAILED,
+                          ReviewStatus.INCOMPLETE, ReviewStatus.ERROR}
+        normalized = []
+        if review not in allowed_review:
+            if status == Status.NEEDS_CONFIRMATION:
+                normalized.append({"field": "review_status", "from": review, "to": ReviewStatus.PASS})
+                review = ReviewStatus.PASS
+            elif status == Status.BLOCKED and high:
+                normalized.append({"field": "review_status", "from": review, "to": ReviewStatus.RISK_BLOCKED})
+                review = ReviewStatus.RISK_BLOCKED
+            else:
+                violations.append(f"未知 review_status: {review}")
+
         if violations:
             return {
                 "status": Status.ERROR,
@@ -187,9 +209,22 @@ class Agent:
             "reason": reason,
             "pending": pending,
             "claim_violations": [],
+            "normalized": normalized,
         }
 
     # ---------- execution ----------
+    @staticmethod
+    def _proposed_from(slot_info: Dict[str, Any]) -> Any:
+        """由时段查询结果确定建议时段（业务确定性逻辑，不由模型决定）。"""
+        if slot_info.get("requested", {}).get("free"):
+            return {"date": slot_info["date"], "time": slot_info["requested"]["time"], "alternative": False}
+        if slot_info.get("candidates"):
+            return {"date": slot_info["date"], "time": slot_info["candidates"][0], "alternative": True}
+        if slot_info.get("earlier_candidates"):
+            return {"date": slot_info["date"], "time": slot_info["earlier_candidates"][-1],
+                    "alternative": True}
+        return None
+
     def _execute(self, decision: Dict[str, Any], request: Request,
                  ctx: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         name = decision["action"]
@@ -207,6 +242,7 @@ class Agent:
                 out = self.toolbox.query_slots(args["date"], args["requested_time"],
                                                material_id=request.material_id)
                 ctx["slot_info"] = out
+                ctx["proposed"] = self._proposed_from(out)
                 return {"date": out["date"], "date_exists": out["date_exists"],
                         "requested_free": out["requested"]["free"],
                         "available": out["available"], "candidates": out["candidates"],
@@ -299,6 +335,7 @@ class Agent:
                 "draft_saved": bool((ctx.get("draft_result") or {}).get("saved")),
             },
             "claim_violations": args.get("claim_violations", []),
+            "normalized": args.get("normalized", []),
         }
 
     def _incomplete(self, request: Request, ctx: Dict[str, Any], steps: List[Dict[str, Any]],

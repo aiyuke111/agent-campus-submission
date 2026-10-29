@@ -68,7 +68,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="故障注入：save_fail 时 save_draft 必定失败")
     p.add_argument("--policy", choices=["mock", "openai"], default="mock",
                    help="决策策略：mock=离线可复现；openai=真实模型（需 OPENAI_API_KEY）")
-    p.add_argument("--model", default="gpt-4o-mini", help="--policy openai 时的模型名")
+    p.add_argument("--model", default=None,
+                   help="--policy openai 时的模型名；默认取 OPENAI_MODEL 或 deepseek-chat")
     p.add_argument("--max-steps", type=int, default=8)
     p.add_argument("--max-tool-calls", type=int, default=12)
     p.add_argument("--outdir", default=None, help="结果与 Trace 输出目录")

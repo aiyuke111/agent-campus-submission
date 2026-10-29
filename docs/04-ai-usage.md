@@ -20,13 +20,15 @@
 
 ## 验证方式
 
-1. `pytest -q`：64 条测试全部通过（连续跑 3 次无失败）；
-2. `python scripts/run_examples.py`：8 个场景实际运行，结果与 Trace 落盘；
-3. 人工核对 `examples/outputs/*.trace.json` 的动作序列与字段；
-4. 手工执行 README 中的 CLI 命令（含 `--inject save_fail`、`--max-steps 2`）。
+1. `pytest -q`：66 条测试全部通过（连续跑 3 次无失败）；
+2. `python scripts/run_examples.py`：8 个 Mock 场景实际运行，结果与 Trace 落盘；
+3. `python scripts/run_openai_examples.py`：用真实 DeepSeek 模型跑 3 条路径，Trace 落盘到 `examples/traces/openai/`；
+4. 人工核对 `examples/outputs/*.trace.json` 与 `examples/traces/openai/*.trace.json` 的动作序列与字段；
+5. 手工执行 README 中的 CLI 命令（含 `--inject save_fail`、`--max-steps 2`）。
 
 ## 未使用 AI 或不可验证的部分
 
-- 未调用任何真实大模型 API；
-- 未使用真实业务数据或密钥，全部为合成数据；
-- 真实模型下的决策稳定性、并发写入、线上发布未验证。
+- 未调用任何真实大模型 API 来进行代码生成；项目内的真实模型调用仅用于产出 `examples/traces/openai/` 的运行记录；
+- 真实模型调用使用运行环境提供的 Key，未写入仓库、未落盘到任何 Trace；
+- 未使用真实业务数据或隐私数据，全部为合成数据；
+- 真实模型只验证了 DeepSeek `deepseek-chat` 一个模型，并发写入、线上发布未验证。
