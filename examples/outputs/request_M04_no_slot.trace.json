@@ -1,5 +1,5 @@
 {
-  "trace_id": "T555e9607f8",
+  "trace_id": "T7c42f30c3c",
   "policy": "mock-policy",
   "request": {
     "material_id": "M04",
@@ -52,7 +52,8 @@
         "date_exists": true,
         "requested_free": false,
         "available": [],
-        "candidates": []
+        "candidates": [],
+        "earlier_candidates": []
       },
       "next_action": "query_slots"
     },
@@ -69,7 +70,8 @@
         "date_exists": true,
         "requested_free": false,
         "available": [],
-        "candidates": []
+        "candidates": [],
+        "earlier_candidates": []
       },
       "next_action": "query_slots"
     },
@@ -86,7 +88,8 @@
         "date_exists": false,
         "requested_free": false,
         "available": [],
-        "candidates": []
+        "candidates": [],
+        "earlier_candidates": []
       },
       "next_action": "finish"
     },
@@ -100,12 +103,12 @@
         "reason": "3 天搜索窗口内没有可用时段",
         "pending": [
           "需人工调整发布日期或开放新时段"
-        ]
+        ],
+        "claim_violations": []
       },
       "observation": {
         "status": "BLOCKED",
-        "review_status": "NO_SLOT",
-        "reason": "3 天搜索窗口内没有可用时段"
+        "review_status": "NO_SLOT"
       },
       "next_action": "end"
     }

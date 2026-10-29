@@ -1,5 +1,5 @@
 {
-  "trace_id": "T964d8a3543",
+  "trace_id": "T352fc33303",
   "policy": "mock-policy",
   "request": {
     "material_id": "M01",
@@ -52,13 +52,12 @@
         "date_exists": true,
         "requested_free": false,
         "available": [
-          "19:00",
-          "20:00"
+          "19:00"
         ],
         "candidates": [
-          "19:00",
-          "20:00"
-        ]
+          "19:00"
+        ],
+        "earlier_candidates": []
       },
       "next_action": "save_draft"
     },
@@ -74,7 +73,7 @@
       },
       "observation": {
         "saved": true,
-        "draft_id": "D72D31698",
+        "draft_id": "D63DFF76B",
         "duplicate": false
       },
       "next_action": "finish"
@@ -90,12 +89,12 @@
         "pending": [
           "替代时段 2026-11-05 19:00 需用户确认；原要求 18:00 未被修改",
           "草稿需人工确认后才可发布"
-        ]
+        ],
+        "claim_violations": []
       },
       "observation": {
         "status": "NEEDS_CONFIRMATION",
-        "review_status": "PASS",
-        "reason": "草稿已保存，等待用户确认"
+        "review_status": "PASS"
       },
       "next_action": "end"
     }

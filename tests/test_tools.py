@@ -57,8 +57,8 @@ def test_save_draft_failure_is_raised(store, toolbox):
 
 
 def test_idempotency_key_is_stable(toolbox):
-    key_a = toolbox.idempotency_key("M01", "2026-11-05", "19:00")
-    key_b = toolbox.idempotency_key("M01", "2026-11-05", "19:00")
-    key_c = toolbox.idempotency_key("M01", "2026-11-05", "20:00")
+    key_a = toolbox.idempotency_key("M01", "2026-11-05", "19:00", "18:00", True)
+    key_b = toolbox.idempotency_key("M01", "2026-11-05", "19:00", "18:00", True)
+    key_c = toolbox.idempotency_key("M01", "2026-11-05", "20:00", "18:00", True)
     assert key_a == key_b
     assert key_a != key_c

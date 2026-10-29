@@ -1,5 +1,5 @@
 {
-  "trace_id": "T6a4ce6a6eb",
+  "trace_id": "T2d406992c3",
   "material_id": "M03",
   "review_status": "RISK_BLOCKED",
   "status": "BLOCKED",
@@ -42,5 +42,11 @@
   "limits": {
     "max_steps": 8,
     "max_tool_calls": 12
-  }
+  },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": false,
+    "draft_saved": false
+  },
+  "claim_violations": []
 }

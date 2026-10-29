@@ -1,5 +1,5 @@
 {
-  "trace_id": "T026a98c3fc",
+  "trace_id": "T8c7d8be1fe",
   "material_id": "M02",
   "review_status": "NEEDS_INPUT",
   "status": "NEEDS_INPUT",
@@ -26,5 +26,11 @@
   "limits": {
     "max_steps": 8,
     "max_tool_calls": 12
-  }
+  },
+  "evidence": {
+    "rules_checked": false,
+    "slot_checked": false,
+    "draft_saved": false
+  },
+  "claim_violations": []
 }

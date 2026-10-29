@@ -37,6 +37,13 @@ python -m src.cli --request examples/inputs/request_M01_conflict.json \
 # 重复提交：使用同一个 --store，再跑一次相同请求
 python -m src.cli --request examples/inputs/request_M01_duplicate.json \
   --store examples/outputs/drafts.json --outdir examples/outputs --tag second
+
+# 批量请求（可重复 --request，共享同一个草稿库）
+python -m src.cli --request examples/inputs/request_M05_normal.json \
+  --request examples/inputs/request_M01_conflict.json --outdir examples/outputs
+
+# 真实模型策略（需要 OPENAI_API_KEY；默认 mock 便于离线复现）
+python -m src.cli --request examples/inputs/request_M01_conflict.json --policy openai
 ```
 
 批量生成全部示例（覆盖 6 个验收点 + 2 条额外路径）：
@@ -51,20 +58,20 @@ python scripts/run_examples.py
 pytest
 ```
 
-CLI 退出码：`0` 表示正常执行（无论业务结论），`2` 表示请求文件无法读取或请求非法。请求文件支持带 BOM 的 UTF-8。
+CLI 退出码：`0` 表示正常执行（无论业务结论），`2` 表示请求文件不可读或系统配置错误。请求文件支持带 BOM 的 UTF-8。
 
 ## 目录
 
 ```
 src/
-  agent.py        Agent 主循环：决策 → 工具 → 观察 → 再决策，含步数/工具调用上限
-  policy.py       离线 Mock 策略（模拟模型的下一步选择），动作协议与真实模型一致
-  tools.py        素材读取 / 规则检查 / 时段查询 / 草稿保存（幂等）
-  guards.py       禁止发布、硬性要求只读、请求校验
-  schemas.py      请求、素材、风险、状态枚举
-  cli.py          命令行入口
-  llm/            可选真实模型适配（默认不启用）
-tests/            单元 + 集成 + 边界测试（34 条）
+  agent.py        Agent 主循环：决策 → 工具 → 观察 → 再决策；含结束结论证据校验
+  policy.py       离线 Mock 策略（真实模型动作协议一致）
+  tools.py        素材 / 规则 / 时段 / 草稿保存（幂等、原子写、文件锁）
+  guards.py       禁止发布、动作前置条件、参数防篡改
+  schemas.py      请求校验、素材、风险、状态枚举
+  cli.py          命令行入口（支持批量请求与真实模型策略）
+  llm/            真实模型适配（OpenAI 兼容，可注入 client 测试）
+tests/            单元 + 集成 + 反例/加固测试（64 条）
 examples/
   inputs/         场景输入
   outputs/        实际运行结果与 Trace
@@ -73,27 +80,38 @@ docs/             需求、方案、评估、AI 使用、复盘
 scripts/          示例批量生成脚本
 ```
 
-## 决策循环
+## 决策循环与安全边界
 
 动作集合：`get_material`、`check_rules`、`query_slots`、`save_draft`、`finish`。  
-每一步记录：决策依据、工具与参数、返回摘要、下一步动作，写入 Trace（`examples/outputs/*.trace.json`）。
+每步记录：决策依据、工具与参数、返回摘要、下一步动作，写入 Trace（`examples/outputs/*.trace.json`）。
 
-- 风险高 → 阻断（不查询时段、不保存草稿）
-- 信息缺失 → 请求补充（不保存草稿）
-- 目标时段被占 → 提出替代时段并标记待确认，**不修改用户硬性要求**
-- 保存失败 → 返回 `SAVE_FAILED`，明确"未生成草稿"
-- 相同请求重复提交 → 幂等键命中，返回同一 `draft_id`，不新增草稿
-- 达到 `max_steps` / `max_tool_calls` → 返回 `INCOMPLETE` 并保留已获取结果
+**Agent 不信任模型的结论，全部校验：**
+
+- 保存前置条件：必须已读素材、已做规则检查、无高风险、已查询时段，且保存参数与"已确认的建议时段"一致；
+- 结束结论校验：`NEEDS_CONFIRMATION` 必须存在真实已保存草稿；`PASS` 必须真的做过规则检查且无高风险；`SAVE_FAILED` 不得与"已保存"矛盾；
+- 越权/未知动作、模型超时/非 JSON/缺字段，全部转成结构化 `ERROR`，不抛 traceback；
+- 输入校验：日期、时间、`hard` 类型非法 → `NEEDS_INPUT`，不会崩溃；
+- 只存草稿：代码与状态机中没有发布动作，`published` 恒为 `false`。
+
+**排期一致性：**
+
+- 时段查询会读取已保存草稿的占用（不同素材不能占用同一时段）；
+- 保存前在文件锁内重新检查时段冲突与幂等键，避免"查询后被人抢走"的竞态；
+- 草稿写入采用临时文件 + 原子替换，写盘失败不会污染内存状态，也不会误报成功；
+- 幂等键包含素材、日期、时段、用户要求时间与 `hard` 标志，同一请求重复提交只生成一份草稿；
+- 达到 `max_steps` / `max_tool_calls` → `INCOMPLETE` 并保留已获取结果。
 
 ## 输出字段
 
 | 字段 | 说明 |
 |---|---|
-| `review_status` | 审核结论：PASS / NEEDS_INPUT / RISK_BLOCKED / NO_SLOT / SAVE_FAILED / INCOMPLETE |
+| `review_status` | 审核结论：PASS / NEEDS_INPUT / RISK_BLOCKED / NO_SLOT / SAVE_FAILED / INCOMPLETE / ERROR |
 | `risk_reasons` | 命中的规则原因 |
 | `suggested_slot` | 建议时段；`alternative=true` 表示与用户原要求不同 |
-| `pending_items` | 待确认项（替代时段、需复核的风险、草稿确认） |
+| `pending_items` | 待确认项（替代时段、需复核的风险、草稿确认、输入问题） |
 | `draft` | 草稿状态：`saved`、`draft_id`、`duplicate`；失败时带 `error` |
+| `evidence` | 本次运行的证据开关：`rules_checked`、`slot_checked`、`draft_saved` |
+| `claim_violations` | 模型结束结论与证据不符时的违规项（正常为空） |
 | `published` | 恒为 `false`（本项目不发布） |
 
 ## 验收点与示例
@@ -110,20 +128,22 @@ scripts/          示例批量生成脚本
 
 ## Mock 边界
 
-- 默认使用 `MockPolicy`（离线规则策略）模拟"模型选择动作"，用于验证流程、状态与边界；
-- 它只能证明流程与工程实现，不代表真实大模型的决策质量；
-- 真实模型适配层在 `src/llm/openai_policy.py`，需要 `OPENAI_API_KEY`，未纳入自动化测试。
+- 默认 `MockPolicy` 用于离线复现流程、状态与边界；它不代表真实模型的决策质量。
+- 真实模型入口已接通 CLI（`--policy openai`），适配层对网络异常、空响应、非 JSON、未知动作做了结构化处理，并用注入 client 做了单元测试。
+- 评测环境无 API Key，因此真实模型的线上效果未纳入本次运行记录。
 
 ## 已知限制
 
-- 单进程、文件存储；未做并发写锁与真实数据库；
-- 未接入真实发布系统（按题意仅保存草稿）；
-- 规则引擎只覆盖示例中的四类规则，未做通用 DSL；
-- 真实模型的工具调用稳定性未验证。
+- 文件存储 + 文件锁，适合单机；未接入数据库与分布式锁；
+- 多进程并发只做了锁与"保存时二次校验"的防护，未做大压力测试；
+- 规则引擎覆盖示例中的四类规则，未抽象通用 DSL；
+- 未接入真实发布系统（按题意仅保存草稿）。
 
 ## 提交信息
 
 - 题号：1（素材审核与发布排期 Agent）
+- GitHub URL：`https://github.com/<your-account>/<repo>`（推送后填写）
+- 最终 commit SHA：以 `git rev-parse HEAD` 为准（见答题页）
 - 运行入口：`python -m src.cli`
 - 测试入口：`pytest`
 - 示例入口：`python scripts/run_examples.py`

@@ -1,94 +1,100 @@
 # 03 评估
 
-## 测试环境
+## 测试环境与命令
 
 - Python 3.10，Windows
 - 运行时零第三方依赖；测试使用 `pytest 9.2`
 - 命令：`pytest -q`
 
-## 测试结果
-
 ```
 $ pytest -q
-..................................                                       [100%]
-34 passed
+................................................................          [100%]
+64 passed
 ```
 
 | 测试文件 | 数量 | 覆盖内容 |
 |---|---|---|
-| `tests/test_tools.py` | 9 | 素材不存在、必填字段缺失、高风险/中风险规则、时段冲突与候选、整日无候选、幂等保存、保存失败、幂等键稳定性 |
-| `tests/test_guards.py` | 4 | 发布类动作拦截、未知动作拦截、硬性要求变更标记、工具层无发布能力 |
+| `tests/test_tools.py` | 9 | 素材不存在、必填字段缺失、风险规则、时段冲突、幂等保存、保存失败、幂等键 |
+| `tests/test_guards.py` | 7 | 发布动作拦截、未知动作、硬性要求标记、前置条件（缺素材/缺规则/参数篡改） |
 | `tests/test_acceptance.py` | 7 | 6 个验收点 + 重复提交只生成一份草稿 |
-| `tests/test_paths.py` | 6 | 两条执行路径、动作序列、Trace 字段、无发布动作 |
+| `tests/test_paths.py` | 6 | 动作序列、两条路径、Trace 字段、无发布动作 |
 | `tests/test_limits.py` | 2 | 步数上限、工具调用上限 |
-| `tests/test_cli.py` | 6 | CLI 正常路径、BOM 兼容、非法 JSON、文件缺失、空 material_id、未知素材 |
+| `tests/test_cli.py` | 7 | CLI 正常/批量、BOM、非法 JSON、文件缺失、空 material_id、未知素材 |
+| `tests/test_hardening.py` | 26 | 反例：虚报完成、跳过审核、草稿撞时段、真实 I/O 失败、非法输入、模型异常、真实模型适配器、抢占重试 |
 
 ## 验收点实测
 
 | 验收点 | 输入 | 实际结果 | 关键字段 | Trace |
 |---|---|---|---|---|
-| 正常排期 | `request_M05_normal` | 通过，草稿待确认 | `status=NEEDS_CONFIRMATION`，`suggested_slot=20:00`，`draft.saved=true`，`published=false` | `request_M05_normal.trace.json` |
-| 素材信息缺失 | `request_M02_missing` | 请求补充，未保存 | `review_status=NEEDS_INPUT`，`draft.saved=false` | `request_M02_missing.trace.json` |
-| 规则风险 | `request_M03_risk` | 阻断 | `review_status=RISK_BLOCKED`，未查询时段、未保存 | `request_M03_risk.trace.json` |
-| 时段冲突 | `request_M01_conflict` | 提出 19:00 替代，标记待确认 | `suggested_slot.time=19:00`，`alternative=true`，`hard_requirement_modified=false`，`requested_slot.time=18:00` | `request_M01_conflict.trace.json` |
-| 重复提交 | 同一请求再跑一次 | 返回同一草稿 | `draft.duplicate=true`，`draft_id` 相同；`drafts.json` 中 M01 只有 1 条 | `request_M01_duplicate.second.trace.json` |
-| 保存失败 | `--inject save_fail` | 明确失败 | `status=SAVE_FAILED`，`draft.saved=false`，`draft.error.code=SAVE_FAILED` | `request_M05_normal.savefail.trace.json` |
-| 步数上限 | `--max-steps 2` | 未完成 | `status=INCOMPLETE`，保留 `collected.material` | `request_M01_conflict.limit.trace.json` |
+| 正常排期 | `request_M05_normal` | 草稿待确认 | `NEEDS_CONFIRMATION`，`suggested_slot=20:00`，`draft.saved=true`，`published=false` | `request_M05_normal.trace.json` |
+| 素材信息缺失 | `request_M02_missing` | 请求补充 | `NEEDS_INPUT`，`draft.saved=false` | `request_M02_missing.trace.json` |
+| 规则风险 | `request_M03_risk` | 阻断 | `RISK_BLOCKED`，未查时段、未保存 | `request_M03_risk.trace.json` |
+| 时段冲突 | `request_M01_conflict` | 建议 19:00 替代 | `alternative=true`，`hard_requirement_modified=false`，原要求 18:00 保留 | `request_M01_conflict.trace.json` |
+| 重复提交 | 同一请求再跑一次 | 返回同一草稿 | `duplicate=true`，`draft_id` 相同；`drafts.json` 中 M01 仅 1 条 | `request_M01_duplicate.second.trace.json` |
+| 保存失败 | `--inject save_fail` | 明确失败 | `SAVE_FAILED`，`draft.saved=false`，带错误码 | `request_M05_normal.savefail.trace.json` |
+| 步数上限 | `--max-steps 2` | 未完成 | `INCOMPLETE`，保留 `collected.material` | `request_M01_conflict.limit.trace.json` |
+
+## 评审问题与修复对照
+
+| # | 评审指出的问题 | 修复 | 验证 |
+|---|---|---|---|
+| 1 | 模型结束结论可虚报"已保存" | Agent 用真实证据复核 `finish`；不一致强制 `ERROR`，记录 `claim_violations` | `test_finish_cannot_claim_saved_without_draft`、`test_finish_cannot_claim_pass_without_rules`、`test_finish_cannot_claim_save_failed_when_saved` |
+| 2 | 模型可跳过审核直接保存 | `guards.check_preconditions` 强制前置步骤与参数一致性 | `test_save_before_audit_is_rejected`、`test_high_risk_material_cannot_be_saved`、`test_precondition_*` |
+| 3 | 不同素材可占用同一时段 | 查询把其他素材草稿计为占用；保存时锁内二次检查并抛 `SLOT_TAKEN` | `test_save_rejects_slot_taken_by_other_material`、`test_query_sees_saved_drafts`、`test_agent_avoids_slot_taken_by_other_draft` |
+| 4 | 真实写盘失败崩溃、内存被污染 | 临时文件 + `os.replace` 原子写；`OSError` 转 `SAVE_FAILED`；写成功后才更新内存 | `test_atomic_write_failure_is_tool_error`、`test_agent_real_io_failure_returns_save_failed` |
+| 5 | 非法日期崩溃、非法时间误报 `NO_SLOT`、`hard:"false"` 被当 true | 请求层校验日期/时间/布尔类型，非法输入返回 `NEEDS_INPUT` | `test_invalid_request_returns_needs_input`（4 组）、`test_hard_string_false_is_parsed` |
+| 6 | 模型输出异常导致 traceback | 决策/执行/CLI 三层兜底，统一转 `ERROR` | `test_policy_exception_is_structured`、`test_policy_non_dict_output_is_structured`、`test_publish_action_is_rejected`、CLI 兜底 |
+| 7 | 幂等键未包含请求意图 | 键加入 `requested_time` 与 `hard` | `test_idempotency_key_includes_requested_intent` |
+| 8 | `search_days` 配置不生效 | CLI 从 `data/slots.json` 注入策略 | `test_policy_uses_search_days_from_config` |
+| 9 | 只支持单素材请求 | CLI 支持重复 `--request` 批量处理 | `test_cli_batch_runs_multiple_requests` |
+| 10 | 真实模型适配器未测试 | 注入 fake client 覆盖正常/坏 JSON/空响应/未知动作/网络异常 | `test_openai_policy_*`（5 条） |
+| 11 | 默认 Mock 是固定分支 | 保留 Mock 作为离线基线；CLI 接通 `--policy openai`，动作协议与决策循环不变；Mock 边界如实标注 | 见 `docs/02` 与 `docs/04` |
 
 ## 两条执行路径（Trace 对照）
 
 **正常路径**（`request_M05_normal.trace.json`）：
 
 ```
-get_material  →  check_rules  →  query_slots(2026-11-05, 20:00)
-              →  save_draft(2026-11-05, 20:00)  →  finish
+get_material → check_rules → query_slots(2026-11-05, 20:00) → save_draft(20:00) → finish
 ```
 
 **冲突调整路径**（`request_M01_conflict.trace.json`）：
 
 ```
-get_material  →  check_rules  →  query_slots(2026-11-05, 18:00)
-              →  观察到 18:00 被占用、候选 19:00/20:00
-              →  save_draft(2026-11-05, 19:00)  →  finish（替代时段待确认）
+get_material → check_rules → query_slots(2026-11-05, 18:00)
+            → 观察到 18:00 占用、候选 19:00
+            → save_draft(19:00) → finish（替代时段待确认）
 ```
 
 **阻断路径**（`request_M03_risk.trace.json`）：
 
 ```
-get_material  →  check_rules  →  命中 R01（版权 high）→  finish（RISK_BLOCKED）
+get_material → check_rules → 命中 R01（版权 high）→ finish（RISK_BLOCKED）
 ```
 
-三条路径的动作与步数不同，说明决策会随工具返回改变，而不是固定串行调用。
-
-## 失败注入与边界
-
-- 保存失败：`--inject save_fail` 使 `save_draft` 抛 `ToolError`；Agent 不重试、不保存、不声称成功，结果为 `SAVE_FAILED`；
-- 步数上限：`--max-steps 2` 只允许两次工具调用，第二次后即返回 `INCOMPLETE`，并保留已读取的素材信息；
-- 工具调用上限：`--max-tool-calls 2` 同样返回 `INCOMPLETE`，`tool_calls_used=2`；
-- 重复提交：`drafts.json` 中 M01 仅 1 条记录，两条 Trace 的 `draft_id` 一致。
-
-## 未覆盖与限制
-
-- 真实大模型的决策质量未验证（Mock 只验证流程；真实适配层需要 API Key）；
-- 未做并发写入与真实数据库，文件存储在并发下可能产生竞争；
-- 规则引擎只覆盖示例中的 4 条规则，未做通用规则 DSL；
-- 未接入真实发布系统（题目要求只保存草稿）。
-
-## 健壮性补充测试
-
-除 6 个验收点外，额外覆盖输入异常与命令行行为：
+## 健壮性与输入异常
 
 | 场景 | 期望 | 实测 |
 |---|---|---|
-| 带 BOM 的 JSON 请求 | 正常解析 | `exit=0`，`NEEDS_CONFIRMATION` |
-| 非法 JSON / 文件不存在 | 结构化错误，不抛 traceback | `exit=2`，`status=ERROR` |
-| `material_id` 为空 | 结构化错误 | `exit=2`，`请求无效: 缺少 material_id` |
-| 素材不存在（M99） | 请求补充信息 | `exit=0`，`NEEDS_INPUT` |
-| 日期不在排期数据中（2026-12-01） | 搜索窗口内无时段 → 阻断 | `exit=0`，`NO_SLOT` |
-| 缺少发布时间 | 请求补充信息 | `exit=0`，`NEEDS_INPUT` |
+| BOM JSON 请求 | 正常解析 | `exit=0`，正常业务结果 |
+| 非法 JSON / 文件不存在 | 结构化错误 | `exit=2`，`status=ERROR`，无 traceback |
+| 空 `material_id` | 请求补充 | `exit=0`，`NEEDS_INPUT` |
+| 非法日期 `2026-13-40` | `NEEDS_INPUT` | `exit=0`，不崩溃 |
+| 非法时间 `25:99` | `NEEDS_INPUT` | 不再误报 `NO_SLOT` |
+| `hard="false"` | 解析为软要求 | `requested_slot.hard=false` |
+| 素材不存在 M99 | 请求补充 | `NEEDS_INPUT` |
+| 日期无排期数据 | 窗口内无时段 | `NO_SLOT` |
 
 ## 复测记录
 
-- `pytest -q` 连续运行 3 次，均为 `34 passed`，无随机失败；
-- 将仓库复制到独立临时目录（不含 `.git`）后，重新执行 `pytest` 与 `scripts/run_examples.py`，结果一致：测试全过、示例可重新生成、`drafts.json` 仍为 2 条（M01/M05）；
+- `pytest -q` 连续运行 3 次，均为 `64 passed`；
+- 仓库复制到独立临时目录（不含 `.git`）后重新执行 `pytest` 与 `scripts/run_examples.py`，结果一致；
+- 示例不变量：`drafts.json` 2 条（M01 19:00、M05 20:00）、重复提交同 `draft_id`、无跨素材同时段、无发布状态；
 - 代码与测试中无绝对路径依赖。
+
+## 未覆盖与限制
+
+- 真实大模型线上效果未验证（无 API Key；适配器已用 fake client 覆盖异常分支）；
+- 文件锁 + 原子写只做了单机防护，未做多进程压力测试；
+- 规则引擎为示例级，未抽象通用 DSL；
+- 未接入真实发布系统（按题意仅保存草稿）。

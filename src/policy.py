@@ -5,7 +5,7 @@
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from .schemas import Action, ReviewStatus, Status
 
@@ -13,11 +13,18 @@ from .schemas import Action, ReviewStatus, Status
 class MockPolicy:
     name = "mock-policy"
 
-    def __init__(self, search_days: int = 3):
+    def __init__(self, search_days: Optional[int] = None):
+        # search_days 为 None 时由 CLI 注入 data/slots.json 的配置，避免配置漂移
         self.search_days = search_days
 
     def decide(self, ctx: Dict[str, Any]) -> Dict[str, Any]:
         req = ctx["request"]
+
+        # 0) 请求格式非法：直接请求补充，不进入工具链
+        if req.validation_errors:
+            return self._finish(Status.NEEDS_INPUT, ReviewStatus.NEEDS_INPUT,
+                                "请求参数不合法，无法排期",
+                                pending=list(req.validation_errors))
 
         # 1) 读取素材
         if ctx.get("material") is None and ctx.get("material_error") is None:
@@ -38,11 +45,6 @@ class MockPolicy:
             return self._finish(Status.NEEDS_INPUT, ReviewStatus.NEEDS_INPUT,
                                 "素材元数据缺失，无法完成审核",
                                 pending=[f"补充必填字段: {', '.join(mat['missing_fields'])}"])
-
-        if not req.publish_date or not req.publish_time:
-            return self._finish(Status.NEEDS_INPUT, ReviewStatus.NEEDS_INPUT,
-                                "缺少发布日期或时间，无法形成排期草稿",
-                                pending=["补充 publish_date / publish_time"])
 
         # 2) 规则检查
         if ctx.get("risks") is None:
@@ -66,32 +68,44 @@ class MockPolicy:
         if proposed is None:
             if slot_info["requested"]["free"]:
                 proposed = {"date": slot_info["date"], "time": req.publish_time, "alternative": False}
-                ctx["proposed"] = proposed
+            elif slot_info["candidates"]:
+                proposed = {"date": slot_info["date"], "time": slot_info["candidates"][0], "alternative": True}
+            elif slot_info.get("earlier_candidates"):
+                proposed = {"date": slot_info["date"], "time": slot_info["earlier_candidates"][-1],
+                            "alternative": True}
             else:
-                candidates = slot_info["candidates"]
-                if candidates:
-                    proposed = {"date": slot_info["date"], "time": candidates[0], "alternative": True}
-                    ctx["proposed"] = proposed
-                else:
-                    # 当天无可用时段，继续向后查，最多 search_days 天
-                    tried = ctx.setdefault("dates_tried", [req.publish_date])
-                    if len(tried) < self.search_days:
-                        next_date = self._add_days(req.publish_date, len(tried))
-                        tried.append(next_date)
-                        return self._tool(
-                            Action.QUERY_SLOTS,
-                            {"date": next_date, "requested_time": req.publish_time},
-                            "当天无可用时段，改用相邻日期继续检索",
-                        )
-                    return self._finish(
-                        Status.BLOCKED, ReviewStatus.NO_SLOT,
-                        f"{self.search_days} 天搜索窗口内没有可用时段",
-                        pending=["需人工调整发布日期或开放新时段"],
+                tried = ctx.setdefault("dates_tried", [req.publish_date])
+                search_days = self.search_days if self.search_days is not None else 3
+                if len(tried) < search_days:
+                    next_date = self._add_days(req.publish_date, len(tried))
+                    tried.append(next_date)
+                    return self._tool(
+                        Action.QUERY_SLOTS,
+                        {"date": next_date, "requested_time": req.publish_time},
+                        "当天无可用时段，改用相邻日期继续检索",
                     )
+                return self._finish(
+                    Status.BLOCKED, ReviewStatus.NO_SLOT,
+                    f"{search_days} 天搜索窗口内没有可用时段",
+                    pending=["需人工调整发布日期或开放新时段"],
+                )
+            ctx["proposed"] = proposed
 
         # 4) 保存草稿（只存草稿，不发布）
         if ctx.get("draft_result") is None:
             if ctx.get("save_error"):
+                err = ctx["save_error"]
+                # 保存瞬间被别人抢占：重新查询时段并重试一次，而不是直接失败
+                if err.get("code") == "SLOT_TAKEN" and not ctx.get("retried_slot_conflict"):
+                    ctx["retried_slot_conflict"] = True
+                    ctx["save_error"] = None  # 允许重试一次；失败会再次进入本分支并结束
+                    ctx["slot_info"] = None
+                    ctx["proposed"] = None
+                    return self._tool(
+                        Action.QUERY_SLOTS,
+                        {"date": req.publish_date, "requested_time": req.publish_time},
+                        "保存时发现时段被抢占，重新查询时段后重试一次",
+                    )
                 return self._finish(Status.SAVE_FAILED, ReviewStatus.SAVE_FAILED,
                                     "草稿保存失败，未生成任何草稿",
                                     pending=["检查存储权限后重试；本次未保存成功"])
@@ -118,7 +132,6 @@ class MockPolicy:
         return self._finish(Status.NEEDS_CONFIRMATION, ReviewStatus.PASS,
                             "草稿已保存，等待用户确认", pending=pending)
 
-    # ---------- helpers ----------
     @staticmethod
     def _tool(name: str, args: Dict[str, Any], basis: str) -> Dict[str, Any]:
         return {"action": name, "args": args, "decision_basis": basis}

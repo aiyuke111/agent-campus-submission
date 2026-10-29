@@ -1,5 +1,5 @@
 {
-  "trace_id": "T5f20916394",
+  "trace_id": "Tf3382455a2",
   "material_id": "M05",
   "review_status": "PASS",
   "status": "NEEDS_CONFIRMATION",
@@ -23,8 +23,8 @@
   "draft": {
     "saved": true,
     "duplicate": false,
-    "draft_id": "D17C6DF68",
-    "idempotency_key": "199e94d8cd20a997"
+    "draft_id": "DAB6DAD51",
+    "idempotency_key": "7549d8e6b4f0fc91"
   },
   "published": false,
   "steps_used": 5,
@@ -32,5 +32,11 @@
   "limits": {
     "max_steps": 8,
     "max_tool_calls": 12
-  }
+  },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": true,
+    "draft_saved": true
+  },
+  "claim_violations": []
 }

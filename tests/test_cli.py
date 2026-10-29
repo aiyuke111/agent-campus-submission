@@ -51,12 +51,25 @@ def test_cli_missing_file_returns_error(tmp_path, capsys):
     assert "请求文件无法读取" in capsys.readouterr().out
 
 
-def test_cli_empty_material_id_returns_error(tmp_path, capsys):
+def test_cli_empty_material_id_returns_needs_input(tmp_path, capsys):
     req = tmp_path / "empty.json"
     req.write_text(json.dumps(_request(material_id="")), encoding="utf-8")
     code = main(["--request", str(req), "--store", str(tmp_path / "drafts.json")])
-    assert code == 2
-    assert "请求无效" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "NEEDS_INPUT" in out
+
+
+def test_cli_batch_runs_multiple_requests(tmp_path, capsys):
+    req1 = tmp_path / "a.json"
+    req2 = tmp_path / "b.json"
+    req1.write_text(json.dumps(_request(), ensure_ascii=False), encoding="utf-8")
+    req2.write_text(json.dumps(_request(material_id="M03", publish_time="19:00")), encoding="utf-8")
+    code = main(["--request", str(req1), "--request", str(req2),
+                 "--store", str(tmp_path / "drafts.json"), "--outdir", str(tmp_path / "out")])
+    assert code == 0
+    assert (tmp_path / "out" / "a.result.json").exists()
+    assert (tmp_path / "out" / "b.result.json").exists()
 
 
 def test_cli_unknown_material_returns_needs_input(tmp_path, capsys):

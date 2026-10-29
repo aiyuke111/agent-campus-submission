@@ -1,5 +1,5 @@
 {
-  "trace_id": "T77a9425197",
+  "trace_id": "Tc40d731e87",
   "material_id": "M05",
   "review_status": "SAVE_FAILED",
   "status": "SAVE_FAILED",
@@ -37,5 +37,11 @@
   "limits": {
     "max_steps": 8,
     "max_tool_calls": 12
-  }
+  },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": true,
+    "draft_saved": false
+  },
+  "claim_violations": []
 }

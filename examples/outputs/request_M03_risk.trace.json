@@ -1,5 +1,5 @@
 {
-  "trace_id": "T6a4ce6a6eb",
+  "trace_id": "T2d406992c3",
   "policy": "mock-policy",
   "request": {
     "material_id": "M03",
@@ -62,12 +62,12 @@
         "reason": "命中高风险规则，禁止进入排期",
         "pending": [
           "R01: 版权未清理，不得进入排期"
-        ]
+        ],
+        "claim_violations": []
       },
       "observation": {
         "status": "BLOCKED",
-        "review_status": "RISK_BLOCKED",
-        "reason": "命中高风险规则，禁止进入排期"
+        "review_status": "RISK_BLOCKED"
       },
       "next_action": "end"
     }

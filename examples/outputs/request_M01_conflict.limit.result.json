@@ -1,5 +1,5 @@
 {
-  "trace_id": "Tc1f420980d",
+  "trace_id": "T54e393d3f5",
   "material_id": "M01",
   "review_status": "INCOMPLETE",
   "status": "INCOMPLETE",
@@ -27,6 +27,12 @@
     "max_steps": 2,
     "max_tool_calls": 12
   },
+  "evidence": {
+    "rules_checked": true,
+    "slot_checked": false,
+    "draft_saved": false
+  },
+  "claim_violations": [],
   "collected": {
     "material": {
       "material_id": "M01",

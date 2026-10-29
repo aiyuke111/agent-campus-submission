@@ -1,5 +1,5 @@
 {
-  "trace_id": "T026a98c3fc",
+  "trace_id": "T8c7d8be1fe",
   "policy": "mock-policy",
   "request": {
     "material_id": "M02",
@@ -40,12 +40,12 @@
         "reason": "素材元数据缺失，无法完成审核",
         "pending": [
           "补充必填字段: duration_s, category"
-        ]
+        ],
+        "claim_violations": []
       },
       "observation": {
         "status": "NEEDS_INPUT",
-        "review_status": "NEEDS_INPUT",
-        "reason": "素材元数据缺失，无法完成审核"
+        "review_status": "NEEDS_INPUT"
       },
       "next_action": "end"
     }

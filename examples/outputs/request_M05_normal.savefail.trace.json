@@ -1,5 +1,5 @@
 {
-  "trace_id": "T77a9425197",
+  "trace_id": "Tc40d731e87",
   "policy": "mock-policy",
   "request": {
     "material_id": "M05",
@@ -52,12 +52,12 @@
         "date_exists": true,
         "requested_free": true,
         "available": [
-          "19:00",
           "20:00"
         ],
         "candidates": [
           "20:00"
-        ]
+        ],
+        "earlier_candidates": []
       },
       "next_action": "save_draft"
     },
@@ -97,12 +97,12 @@
         "reason": "草稿保存失败，未生成任何草稿",
         "pending": [
           "检查存储权限后重试；本次未保存成功"
-        ]
+        ],
+        "claim_violations": []
       },
       "observation": {
         "status": "SAVE_FAILED",
-        "review_status": "SAVE_FAILED",
-        "reason": "草稿保存失败，未生成任何草稿"
+        "review_status": "SAVE_FAILED"
       },
       "next_action": "end"
     }
