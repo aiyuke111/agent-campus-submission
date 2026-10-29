@@ -51,6 +51,8 @@ python scripts/run_examples.py
 pytest
 ```
 
+CLI 退出码：`0` 表示正常执行（无论业务结论），`2` 表示请求文件无法读取或请求非法。请求文件支持带 BOM 的 UTF-8。
+
 ## 目录
 
 ```
@@ -62,7 +64,7 @@ src/
   schemas.py      请求、素材、风险、状态枚举
   cli.py          命令行入口
   llm/            可选真实模型适配（默认不启用）
-tests/            单元 + 集成 + 边界测试（28 条）
+tests/            单元 + 集成 + 边界测试（34 条）
 examples/
   inputs/         场景输入
   outputs/        实际运行结果与 Trace

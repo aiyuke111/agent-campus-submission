@@ -10,8 +10,8 @@
 
 ```
 $ pytest -q
-............................                                             [100%]
-28 passed
+..................................                                       [100%]
+34 passed
 ```
 
 | 测试文件 | 数量 | 覆盖内容 |
@@ -21,6 +21,7 @@ $ pytest -q
 | `tests/test_acceptance.py` | 7 | 6 个验收点 + 重复提交只生成一份草稿 |
 | `tests/test_paths.py` | 6 | 两条执行路径、动作序列、Trace 字段、无发布动作 |
 | `tests/test_limits.py` | 2 | 步数上限、工具调用上限 |
+| `tests/test_cli.py` | 6 | CLI 正常路径、BOM 兼容、非法 JSON、文件缺失、空 material_id、未知素材 |
 
 ## 验收点实测
 
@@ -72,3 +73,22 @@ get_material  →  check_rules  →  命中 R01（版权 high）→  finish（RI
 - 未做并发写入与真实数据库，文件存储在并发下可能产生竞争；
 - 规则引擎只覆盖示例中的 4 条规则，未做通用规则 DSL；
 - 未接入真实发布系统（题目要求只保存草稿）。
+
+## 健壮性补充测试
+
+除 6 个验收点外，额外覆盖输入异常与命令行行为：
+
+| 场景 | 期望 | 实测 |
+|---|---|---|
+| 带 BOM 的 JSON 请求 | 正常解析 | `exit=0`，`NEEDS_CONFIRMATION` |
+| 非法 JSON / 文件不存在 | 结构化错误，不抛 traceback | `exit=2`，`status=ERROR` |
+| `material_id` 为空 | 结构化错误 | `exit=2`，`请求无效: 缺少 material_id` |
+| 素材不存在（M99） | 请求补充信息 | `exit=0`，`NEEDS_INPUT` |
+| 日期不在排期数据中（2026-12-01） | 搜索窗口内无时段 → 阻断 | `exit=0`，`NO_SLOT` |
+| 缺少发布时间 | 请求补充信息 | `exit=0`，`NEEDS_INPUT` |
+
+## 复测记录
+
+- `pytest -q` 连续运行 3 次，均为 `34 passed`，无随机失败；
+- 将仓库复制到独立临时目录（不含 `.git`）后，重新执行 `pytest` 与 `scripts/run_examples.py`，结果一致：测试全过、示例可重新生成、`drafts.json` 仍为 2 条（M01/M05）；
+- 代码与测试中无绝对路径依赖。

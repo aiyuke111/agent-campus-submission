@@ -14,7 +14,7 @@ from .schemas import Material, Risk, Slot
 
 
 def _load_json(path: str) -> Dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8-sig") as f:
         return json.load(f)
 
 
@@ -42,7 +42,7 @@ class Toolbox:
     # ---------- store ----------
     def _load_store(self) -> Dict[str, Dict[str, Any]]:
         if os.path.exists(self.store_path):
-            with open(self.store_path, "r", encoding="utf-8") as f:
+            with open(self.store_path, "r", encoding="utf-8-sig") as f:
                 return json.load(f)
         return {}
 

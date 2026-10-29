@@ -20,7 +20,7 @@
 
 ## 验证方式
 
-1. `pytest -q`：28 条测试全部通过；
+1. `pytest -q`：34 条测试全部通过（连续跑 3 次无失败）；
 2. `python scripts/run_examples.py`：8 个场景实际运行，结果与 Trace 落盘；
 3. 人工核对 `examples/outputs/*.trace.json` 的动作序列与字段；
 4. 手工执行 README 中的 CLI 命令（含 `--inject save_fail`、`--max-steps 2`）。
