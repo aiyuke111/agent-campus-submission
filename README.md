@@ -13,6 +13,14 @@
 pip install -r requirements.txt
 ```
 
+## 评审入口（3 步）
+
+```bash
+pytest                                # 预期 64 passed；完整输出见 examples/test-report.txt
+python scripts/run_examples.py        # 重建 examples/outputs（8 个场景的结果与 Trace）
+# 查看 examples/outputs/*.result.json 与 *.trace.json
+```
+
 ## 运行
 
 单场景（默认离线 Mock 策略）：
