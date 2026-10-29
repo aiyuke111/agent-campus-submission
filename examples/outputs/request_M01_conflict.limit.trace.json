@@ -1,0 +1,44 @@
+{
+  "trace_id": "Tfd53bc99a9",
+  "policy": "mock-policy",
+  "request": {
+    "material_id": "M01",
+    "publish_date": "2026-11-05",
+    "publish_time": "18:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 2,
+    "max_tool_calls": 12
+  },
+  "tool_calls_used": 2,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "先读取素材元数据，确认存在性与完整性",
+      "action": "get_material",
+      "args": {
+        "material_id": "M01"
+      },
+      "observation": {
+        "title": "夏日猫咪日常",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材元数据完整，先做规则风险检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M01"
+      },
+      "observation": {
+        "risks": []
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "INCOMPLETE"
+}

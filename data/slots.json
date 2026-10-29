@@ -1,0 +1,25 @@
+{
+  "window": ["09:00", "22:00"],
+  "slot_minutes": 60,
+  "search_days": 3,
+  "dates": {
+    "2026-11-05": [
+      { "time": "09:00", "capacity": 1, "booked": 1, "note": "M88 早间发布" },
+      { "time": "12:00", "capacity": 1, "booked": 1, "note": "M91 午间发布" },
+      { "time": "18:00", "capacity": 1, "booked": 1, "note": "M99 已占用" },
+      { "time": "19:00", "capacity": 1, "booked": 0, "note": "" },
+      { "time": "20:00", "capacity": 1, "booked": 0, "note": "" },
+      { "time": "21:00", "capacity": 1, "booked": 1, "note": "M93 晚间发布" }
+    ],
+    "2026-11-06": [
+      { "time": "18:00", "capacity": 1, "booked": 1, "note": "M97" },
+      { "time": "19:00", "capacity": 1, "booked": 1, "note": "M96" },
+      { "time": "20:00", "capacity": 1, "booked": 1, "note": "M95" }
+    ],
+    "2026-11-07": [
+      { "time": "18:00", "capacity": 1, "booked": 1, "note": "M94" },
+      { "time": "19:00", "capacity": 1, "booked": 1, "note": "M92" },
+      { "time": "20:00", "capacity": 1, "booked": 1, "note": "M90" }
+    ]
+  }
+}

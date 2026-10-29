@@ -1,0 +1,111 @@
+{
+  "trace_id": "Tc16fd2ecef",
+  "policy": "mock-policy",
+  "request": {
+    "material_id": "M05",
+    "publish_date": "2026-11-05",
+    "publish_time": "20:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  },
+  "tool_calls_used": 4,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "先读取素材元数据，确认存在性与完整性",
+      "action": "get_material",
+      "args": {
+        "material_id": "M05"
+      },
+      "observation": {
+        "title": "咖啡店探店",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材元数据完整，先做规则风险检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M05"
+      },
+      "observation": {
+        "risks": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 3,
+      "decision_basis": "规则检查通过，查询用户要求日期/时段的占用情况",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-05",
+        "requested_time": "20:00"
+      },
+      "observation": {
+        "date": "2026-11-05",
+        "date_exists": true,
+        "requested_free": true,
+        "available": [
+          "19:00",
+          "20:00"
+        ],
+        "candidates": [
+          "20:00"
+        ]
+      },
+      "next_action": "save_draft"
+    },
+    {
+      "step": 4,
+      "decision_basis": "时段可用，保存排期草稿（待人工确认，不发布）",
+      "action": "save_draft",
+      "args": {
+        "date": "2026-11-05",
+        "time": "20:00",
+        "requested_time": "20:00",
+        "hard": true
+      },
+      "observation": {
+        "error": {
+          "code": "SAVE_FAILED",
+          "message": "草稿存储不可写（注入故障：save_fail）",
+          "retryable": false,
+          "tool": "save_draft"
+        }
+      },
+      "error": {
+        "code": "SAVE_FAILED",
+        "message": "草稿存储不可写（注入故障：save_fail）",
+        "retryable": false,
+        "tool": "save_draft"
+      },
+      "next_action": "finish"
+    },
+    {
+      "step": 5,
+      "decision_basis": "草稿保存失败，未生成任何草稿",
+      "action": "finish",
+      "args": {
+        "status": "SAVE_FAILED",
+        "review_status": "SAVE_FAILED",
+        "reason": "草稿保存失败，未生成任何草稿",
+        "pending": [
+          "检查存储权限后重试；本次未保存成功"
+        ]
+      },
+      "observation": {
+        "status": "SAVE_FAILED",
+        "review_status": "SAVE_FAILED",
+        "reason": "草稿保存失败，未生成任何草稿"
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "SAVE_FAILED"
+}

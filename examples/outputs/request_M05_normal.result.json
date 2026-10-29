@@ -1,0 +1,36 @@
+{
+  "trace_id": "Td1a09e3dd2",
+  "material_id": "M05",
+  "review_status": "PASS",
+  "status": "NEEDS_CONFIRMATION",
+  "reason": "草稿已保存，等待用户确认",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "20:00",
+    "hard": true
+  },
+  "suggested_slot": {
+    "date": "2026-11-05",
+    "time": "20:00",
+    "alternative": false,
+    "hard_requirement_modified": false
+  },
+  "pending_items": [
+    "草稿需人工确认后才可发布"
+  ],
+  "draft": {
+    "saved": true,
+    "duplicate": false,
+    "draft_id": "D17C6DF68",
+    "idempotency_key": "199e94d8cd20a997"
+  },
+  "published": false,
+  "steps_used": 5,
+  "tool_calls_used": 4,
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  }
+}

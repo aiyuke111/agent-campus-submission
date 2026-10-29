@@ -1,0 +1,61 @@
+{
+  "materials": [
+    {
+      "material_id": "M01",
+      "title": "夏日猫咪日常",
+      "metadata": {
+        "copyright": "cleared",
+        "sensitive": false,
+        "duration_s": 45,
+        "category": "pet"
+      }
+    },
+    {
+      "material_id": "M02",
+      "title": "未命名素材",
+      "metadata": {
+        "copyright": "cleared"
+      }
+    },
+    {
+      "material_id": "M03",
+      "title": "品牌合作短片",
+      "metadata": {
+        "copyright": "pending_review",
+        "sensitive": false,
+        "duration_s": 30,
+        "category": "brand"
+      }
+    },
+    {
+      "material_id": "M04",
+      "title": "城市夜景",
+      "metadata": {
+        "copyright": "cleared",
+        "sensitive": false,
+        "duration_s": 60,
+        "category": "city"
+      }
+    },
+    {
+      "material_id": "M05",
+      "title": "咖啡店探店",
+      "metadata": {
+        "copyright": "cleared",
+        "sensitive": false,
+        "duration_s": 50,
+        "category": "store"
+      }
+    },
+    {
+      "material_id": "M06",
+      "title": "校园街访",
+      "metadata": {
+        "copyright": "cleared",
+        "sensitive": true,
+        "duration_s": 40,
+        "category": "campus"
+      }
+    }
+  ]
+}

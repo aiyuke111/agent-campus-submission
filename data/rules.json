@@ -1,0 +1,41 @@
+{
+  "required_metadata": ["copyright", "duration_s", "category"],
+  "rules": [
+    {
+      "rule_id": "R01",
+      "field": "copyright",
+      "op": "ne",
+      "value": "cleared",
+      "severity": "high",
+      "reason": "版权未清理，不得进入排期",
+      "needs_confirmation": false
+    },
+    {
+      "rule_id": "R02",
+      "field": "sensitive",
+      "op": "eq",
+      "value": true,
+      "severity": "high",
+      "reason": "素材含敏感内容，需人工复核后再排期",
+      "needs_confirmation": true
+    },
+    {
+      "rule_id": "R03",
+      "field": "duration_s",
+      "op": "gt",
+      "value": 60,
+      "severity": "medium",
+      "reason": "素材时长超过 60 秒，发布位需运营确认",
+      "needs_confirmation": true
+    },
+    {
+      "rule_id": "R04",
+      "field": "category",
+      "op": "eq",
+      "value": "brand",
+      "severity": "medium",
+      "reason": "品牌合作素材需品牌方确认文案与露出",
+      "needs_confirmation": true
+    }
+  ]
+}

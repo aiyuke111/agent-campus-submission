@@ -1,0 +1,114 @@
+{
+  "trace_id": "Tb5a3191b5a",
+  "policy": "mock-policy",
+  "request": {
+    "material_id": "M04",
+    "publish_date": "2026-11-06",
+    "publish_time": "18:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  },
+  "tool_calls_used": 5,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "先读取素材元数据，确认存在性与完整性",
+      "action": "get_material",
+      "args": {
+        "material_id": "M04"
+      },
+      "observation": {
+        "title": "城市夜景",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材元数据完整，先做规则风险检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M04"
+      },
+      "observation": {
+        "risks": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 3,
+      "decision_basis": "规则检查通过，查询用户要求日期/时段的占用情况",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-06",
+        "requested_time": "18:00"
+      },
+      "observation": {
+        "date": "2026-11-06",
+        "date_exists": true,
+        "requested_free": false,
+        "available": [],
+        "candidates": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 4,
+      "decision_basis": "当天无可用时段，改用相邻日期继续检索",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-07",
+        "requested_time": "18:00"
+      },
+      "observation": {
+        "date": "2026-11-07",
+        "date_exists": true,
+        "requested_free": false,
+        "available": [],
+        "candidates": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 5,
+      "decision_basis": "当天无可用时段，改用相邻日期继续检索",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-08",
+        "requested_time": "18:00"
+      },
+      "observation": {
+        "date": "2026-11-08",
+        "date_exists": false,
+        "requested_free": false,
+        "available": [],
+        "candidates": []
+      },
+      "next_action": "finish"
+    },
+    {
+      "step": 6,
+      "decision_basis": "3 天搜索窗口内没有可用时段",
+      "action": "finish",
+      "args": {
+        "status": "BLOCKED",
+        "review_status": "NO_SLOT",
+        "reason": "3 天搜索窗口内没有可用时段",
+        "pending": [
+          "需人工调整发布日期或开放新时段"
+        ]
+      },
+      "observation": {
+        "status": "BLOCKED",
+        "review_status": "NO_SLOT",
+        "reason": "3 天搜索窗口内没有可用时段"
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "BLOCKED"
+}

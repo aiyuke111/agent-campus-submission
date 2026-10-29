@@ -1,0 +1,30 @@
+{
+  "trace_id": "Tb5a3191b5a",
+  "material_id": "M04",
+  "review_status": "NO_SLOT",
+  "status": "BLOCKED",
+  "reason": "3 天搜索窗口内没有可用时段",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-06",
+    "time": "18:00",
+    "hard": true
+  },
+  "suggested_slot": null,
+  "pending_items": [
+    "需人工调整发布日期或开放新时段"
+  ],
+  "draft": {
+    "saved": false,
+    "draft_id": null,
+    "duplicate": false
+  },
+  "published": false,
+  "steps_used": 6,
+  "tool_calls_used": 5,
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  }
+}

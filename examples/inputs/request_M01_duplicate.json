@@ -1,0 +1,8 @@
+{
+  "material_id": "M01",
+  "publish_date": "2026-11-05",
+  "publish_time": "18:00",
+  "hard": true,
+  "operator": "ops-demo",
+  "note": "与 request_M01_conflict 相同的请求，用于验证重复提交"
+}

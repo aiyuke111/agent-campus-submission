@@ -1,0 +1,45 @@
+{
+  "trace_id": "Tfd53bc99a9",
+  "material_id": "M01",
+  "review_status": "INCOMPLETE",
+  "status": "INCOMPLETE",
+  "reason": "达到 max_steps 上限，任务未完成，已保留已获取的结果",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "18:00",
+    "hard": true
+  },
+  "suggested_slot": null,
+  "pending_items": [
+    "任务未完成，请缩短流程或放宽上限后重试"
+  ],
+  "draft": {
+    "saved": false,
+    "draft_id": null,
+    "duplicate": false
+  },
+  "published": false,
+  "steps_used": 2,
+  "tool_calls_used": 2,
+  "limits": {
+    "max_steps": 2,
+    "max_tool_calls": 12
+  },
+  "collected": {
+    "material": {
+      "material_id": "M01",
+      "title": "夏日猫咪日常",
+      "metadata": {
+        "copyright": "cleared",
+        "sensitive": false,
+        "duration_s": 45,
+        "category": "pet"
+      },
+      "missing_fields": []
+    },
+    "risks": [],
+    "slot_info": null
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "trace_id": "Tbb8e580b3c",
+  "material_id": "M03",
+  "review_status": "RISK_BLOCKED",
+  "status": "BLOCKED",
+  "reason": "命中高风险规则，禁止进入排期",
+  "risk_reasons": [
+    "版权未清理，不得进入排期",
+    "品牌合作素材需品牌方确认文案与露出"
+  ],
+  "risks": [
+    {
+      "rule_id": "R01",
+      "severity": "high",
+      "reason": "版权未清理，不得进入排期",
+      "needs_confirmation": false
+    },
+    {
+      "rule_id": "R04",
+      "severity": "medium",
+      "reason": "品牌合作素材需品牌方确认文案与露出",
+      "needs_confirmation": true
+    }
+  ],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "19:00",
+    "hard": true
+  },
+  "suggested_slot": null,
+  "pending_items": [
+    "R01: 版权未清理，不得进入排期"
+  ],
+  "draft": {
+    "saved": false,
+    "draft_id": null,
+    "duplicate": false
+  },
+  "published": false,
+  "steps_used": 3,
+  "tool_calls_used": 2,
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "trace_id": "Td9ba648fe5",
+  "material_id": "M02",
+  "review_status": "NEEDS_INPUT",
+  "status": "NEEDS_INPUT",
+  "reason": "素材元数据缺失，无法完成审核",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "19:00",
+    "hard": true
+  },
+  "suggested_slot": null,
+  "pending_items": [
+    "补充必填字段: duration_s, category"
+  ],
+  "draft": {
+    "saved": false,
+    "draft_id": null,
+    "duplicate": false
+  },
+  "published": false,
+  "steps_used": 2,
+  "tool_calls_used": 1,
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  }
+}

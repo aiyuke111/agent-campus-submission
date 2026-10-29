@@ -1,0 +1,41 @@
+{
+  "trace_id": "Tc16fd2ecef",
+  "material_id": "M05",
+  "review_status": "SAVE_FAILED",
+  "status": "SAVE_FAILED",
+  "reason": "草稿保存失败，未生成任何草稿",
+  "risk_reasons": [],
+  "risks": [],
+  "requested_slot": {
+    "date": "2026-11-05",
+    "time": "20:00",
+    "hard": true
+  },
+  "suggested_slot": {
+    "date": "2026-11-05",
+    "time": "20:00",
+    "alternative": false,
+    "hard_requirement_modified": false
+  },
+  "pending_items": [
+    "检查存储权限后重试；本次未保存成功"
+  ],
+  "draft": {
+    "saved": false,
+    "draft_id": null,
+    "duplicate": false,
+    "error": {
+      "code": "SAVE_FAILED",
+      "message": "草稿存储不可写（注入故障：save_fail）",
+      "retryable": false,
+      "tool": "save_draft"
+    }
+  },
+  "published": false,
+  "steps_used": 5,
+  "tool_calls_used": 4,
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  }
+}

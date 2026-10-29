@@ -1,0 +1,104 @@
+{
+  "trace_id": "T0b834bec59",
+  "policy": "mock-policy",
+  "request": {
+    "material_id": "M01",
+    "publish_date": "2026-11-05",
+    "publish_time": "18:00",
+    "hard": true,
+    "operator": "ops-demo"
+  },
+  "limits": {
+    "max_steps": 8,
+    "max_tool_calls": 12
+  },
+  "tool_calls_used": 4,
+  "steps": [
+    {
+      "step": 1,
+      "decision_basis": "先读取素材元数据，确认存在性与完整性",
+      "action": "get_material",
+      "args": {
+        "material_id": "M01"
+      },
+      "observation": {
+        "title": "夏日猫咪日常",
+        "missing_fields": []
+      },
+      "next_action": "check_rules"
+    },
+    {
+      "step": 2,
+      "decision_basis": "素材元数据完整，先做规则风险检查",
+      "action": "check_rules",
+      "args": {
+        "material_id": "M01"
+      },
+      "observation": {
+        "risks": []
+      },
+      "next_action": "query_slots"
+    },
+    {
+      "step": 3,
+      "decision_basis": "规则检查通过，查询用户要求日期/时段的占用情况",
+      "action": "query_slots",
+      "args": {
+        "date": "2026-11-05",
+        "requested_time": "18:00"
+      },
+      "observation": {
+        "date": "2026-11-05",
+        "date_exists": true,
+        "requested_free": false,
+        "available": [
+          "19:00",
+          "20:00"
+        ],
+        "candidates": [
+          "19:00",
+          "20:00"
+        ]
+      },
+      "next_action": "save_draft"
+    },
+    {
+      "step": 4,
+      "decision_basis": "时段可用，保存排期草稿（待人工确认，不发布）",
+      "action": "save_draft",
+      "args": {
+        "date": "2026-11-05",
+        "time": "19:00",
+        "requested_time": "18:00",
+        "hard": true
+      },
+      "observation": {
+        "saved": true,
+        "draft_id": "D72D31698",
+        "duplicate": false
+      },
+      "next_action": "finish"
+    },
+    {
+      "step": 5,
+      "decision_basis": "草稿已保存，等待用户确认",
+      "action": "finish",
+      "args": {
+        "status": "NEEDS_CONFIRMATION",
+        "review_status": "PASS",
+        "reason": "草稿已保存，等待用户确认",
+        "pending": [
+          "替代时段 2026-11-05 19:00 需用户确认；原要求 18:00 未被修改",
+          "草稿需人工确认后才可发布"
+        ]
+      },
+      "observation": {
+        "status": "NEEDS_CONFIRMATION",
+        "review_status": "PASS",
+        "reason": "草稿已保存，等待用户确认"
+      },
+      "next_action": "end"
+    }
+  ],
+  "final_status": "NEEDS_CONFIRMATION"
+}
