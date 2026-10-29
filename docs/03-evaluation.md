@@ -12,7 +12,7 @@ $ pytest -q
 66 passed
 ```
 
-完整测试输出保存在 `examples/test-report.txt`（`64 passed`），供评审直接查看。
+完整测试输出保存在 `examples/test-report.txt`（`66 passed`），供评审直接查看。
 
 | 测试文件 | 数量 | 覆盖内容 |
 |---|---|---|
